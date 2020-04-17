@@ -1,21 +1,33 @@
-const express = require("express");
-const connectDB = require("./config/db");
+const express = require('express');
+const connectDB = require('./config/db');
 const app = express();
+const path = require('path');
 
 // connect db
 connectDB();
 
 // sending data to browser
-app.get("/", (req, res) => res.send("hello"));
+// this is end point
 
-//init middelware
+//init middelware // body parser middleware
 app.use(express.json({ extended: false }));
 
-// Define routes
-app.use("/api/users", require("./routes/api/users"));
-app.use("/api/posts", require("./routes/api/posts"));
-app.use("/api/profile", require("./routes/api/profile"));
-app.use("/api/auth", require("./routes/api/auth"));
+// Define routes for middleware
+app.use('/api/users', require('./routes/api/users'));
+app.use('/api/posts', require('./routes/api/posts'));
+app.use('/api/profile', require('./routes/api/profile'));
+app.use('/api/auth', require('./routes/api/auth'));
 
-const PORT = process.env.PORT || 5000; // this we are setting up the port where will listen from the server , if we set heruko it will take env varianble port to send data otherwise local host of 5000 will be used
+// serve static action in production
+if (process.env.NODE_ENV === 'production') {
+    // static folder
+    app.use(express.static('client/build'));
+
+    app.get('*', (req, res) => {
+        res.sendfile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+    });
+}
+
+const PORT = process.env.PORT || 5000; //
+
 app.listen(PORT, () => console.log(`server started on ${PORT}`));
